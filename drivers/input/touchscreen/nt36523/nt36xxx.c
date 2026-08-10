@@ -3062,7 +3062,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 #ifdef CONFIG_FACTORY_BUILD
 	ts->pen_input_dev_enable = 1;
 #else
-	ts->pen_input_dev_enable = 0;
+	ts->pen_input_dev_enable = 1;
 #endif
 
 #if BOOT_UPDATE_FIRMWARE
