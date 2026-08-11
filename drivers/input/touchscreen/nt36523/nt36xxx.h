@@ -167,6 +167,7 @@ struct nvt_ts_data {
 	u8 fw_mode_requested;
 	u8 fw_mode_applied;
 	bool fw_mode_applied_valid;
+	bool pen_update;
 	bool lkdown_readed;
 	u8 lockdown_info[NVT_LOCKDOWN_SIZE];
 	uint8_t fw_ver;

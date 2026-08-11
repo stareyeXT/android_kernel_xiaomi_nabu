@@ -993,6 +993,11 @@ int32_t nvt_update_firmware(const char *firmware_name)
 
 	if (firmware_name && ts->fw_name &&
 	    !strcmp(firmware_name, (const char *)ts->fw_name)) {
+		if (ts->pen_update) {
+			selected_name = "novatek_nt36523_k82_fw01_pen.bin";
+			NVT_LOG("[mi-pen]: Force request firmware %s\n", selected_name);
+			goto request_bin;
+		}
 		managed_firmware = true;
 		requested_mode = READ_ONCE(ts->fw_mode_requested);
 		if (requested_mode == NVT_TOUCH_FW_MIUI125) {
@@ -1002,6 +1007,8 @@ int32_t nvt_update_firmware(const char *firmware_name)
 				selected_name = "novatek_nt36523_fw02_0036.bin";
 		}
 	}
+
+request_bin:
 
 	// request bin file in "/etc/firmware"
 	ret = update_firmware_request(selected_name);

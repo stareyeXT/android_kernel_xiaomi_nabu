@@ -3,7 +3,7 @@
  * Copyright (C) 2021 XiaoMi, Inc.
  *
  * $Revision: 73033 $
- * $Date: 2020-11-26 10:09:14 +0800 (週四, 26 十一月 2020) $
+ * $Date: 2020-11-26 10:09:14 +0800 (閫卞洓, 26 鍗佷竴鏈?2020) $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -251,6 +251,27 @@ static ssize_t bk_touch_firmware_status_show(struct device *dev,
 			requested != READ_ONCE(ts->fw_mode_applied));
 }
 
+static ssize_t bk_touch_pen_fw_show(struct device *dev,
+				    struct device_attribute *attr, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n", READ_ONCE(ts->pen_update));
+}
+
+static ssize_t bk_touch_pen_fw_store(struct device *dev,
+				     struct device_attribute *attr,
+				     const char *buf, size_t count)
+{
+	bool enable;
+	int ret;
+
+	ret = kstrtobool(buf, &enable);
+	if (ret)
+		return ret;
+
+	WRITE_ONCE(ts->pen_update, enable);
+	return count;
+}
+
 static DEVICE_ATTR(panel_color, (S_IRUGO), nvt_panel_color_show, NULL);
 static DEVICE_ATTR(panel_vendor, (S_IRUGO), nvt_panel_vendor_show, NULL);
 static DEVICE_ATTR(panel_display, (S_IRUGO), nvt_panel_display_show, NULL);
@@ -258,6 +279,8 @@ static DEVICE_ATTR(bk_touch_firmware, 0644, bk_touch_firmware_show,
 		   bk_touch_firmware_store);
 static DEVICE_ATTR(bk_touch_firmware_status, 0444,
 		   bk_touch_firmware_status_show, NULL);
+static DEVICE_ATTR(bk_touch_pen_fw, 0644, bk_touch_pen_fw_show,
+		   bk_touch_pen_fw_store);
 
 struct attribute *nvt_panel_attr[] = {
 	&dev_attr_panel_color.attr,
@@ -265,6 +288,7 @@ struct attribute *nvt_panel_attr[] = {
 	&dev_attr_panel_display.attr,
 	&dev_attr_bk_touch_firmware.attr,
 	&dev_attr_bk_touch_firmware_status.attr,
+	&dev_attr_bk_touch_pen_fw.attr,
 	NULL,
 };
 
@@ -2355,7 +2379,10 @@ static int nvt_set_cur_value(int nvt_mode, int nvt_value)
 		return 0;
 	} else if (nvt_mode == Touch_Pen_ENABLE && ts && nvt_value >= 0) {
 		ts->pen_input_dev_enable = !!nvt_value;
-		NVT_LOG("%s pen input dev", ts->pen_input_dev_enable ? "ENABLE" : "DISABLE");
+		ts->pen_update = !!nvt_value;
+		NVT_LOG("%s pen input dev, pen fw update %s",
+			ts->pen_input_dev_enable ? "ENABLE" : "DISABLE",
+			ts->pen_update ? "ENABLED" : "DISABLED");
 		disable_pen_input_device(!ts->pen_input_dev_enable);
 		release_pen_event();
 		return 0;
