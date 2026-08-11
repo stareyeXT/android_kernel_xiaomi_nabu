@@ -3091,6 +3091,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 #else
 	ts->pen_input_dev_enable = 1;
 #endif
+	ts->pen_update = 1;
 
 #if BOOT_UPDATE_FIRMWARE
 	nvt_fwu_wq = alloc_workqueue("nvt_fwu_wq", WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
